@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crypto Payment (Plain HTML)</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --pp-blue:#000; /* Black */ /* Darker PayPal Blue */ /* PayPal Blue */
+      --pp-sky:#000; /* Black */  /* Darker Sky Blue */  /* PayPal Sky */
+      --pp-dark:#001c64; /* PayPal Dark */
+      --pp-gold:#ffc439; /* PayPal Gold (checkout) */
+      --pp-gold-hover:#ffb300;
+    }
+    body{ font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Apple Color Emoji','Segoe UI Emoji'; }
+    .glass{ background: rgba(255,255,255,0.85); backdrop-filter: blur(18px); border:1px solid rgba(0,0,0,0.06);}    
+    .no-tap-highlight{ -webkit-tap-highlight-color: transparent; }
+    .pp-gold{ background-color: var(--pp-gold); color:#111; }
+    .pp-gold:hover{ background-color: var(--pp-gold-hover); }
+    .pp-blue-grad{ background-image: linear-gradient(135deg,#000,#111); }
+    .pp-border{ border-color: rgba(0,48,135,.15); }
+  </style>
+</head>
+<body class="min-h-screen bg-white flex items-center justify-center p-4">
+  
+
+  <div class="relative w-full max-w-md">
+    <div class="glass rounded-3xl shadow-2xl overflow-hidden">
+      <!-- Header -->
+      <div class="bg-white p-6 text-center border-b pp-border">
+        <h1 class="text-2xl font-bold text-gray-900 mb-1">Crypto Payment</h1>
+        <p class="text-gray-500 text-sm">Secure &amp; Fast Transactions</p>
+      </div>
+
+      <!-- Content -->
+      <div class="p-6">
+        <!-- Expected Amount -->
+        <div class="mb-6">
+          <label for="expectedAmount" class="block text-gray-900 text-sm font-semibold mb-2">Expected Amount</label>
+          <input id="expectedAmount" type="number" inputmode="decimal"
+                 placeholder="Enter amount"
+                 class="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600" />
+        </div>
+
+        <!-- Crypto Selection -->
+        <label class="block text-gray-900 text-sm font-semibold mb-3">Select Cryptocurrency</label>
+        <div id="cryptoButtons" class="grid grid-cols-4 gap-2 mb-6"></div>
+
+        <!-- Selected Crypto Info Card -->
+        <div id="infoCard" class="rounded-2xl p-6 mb-6 shadow-xl pp-blue-grad">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 id="cryptoName" class="text-white text-xl font-bold">Tether USD</h3>
+              <p id="cryptoNetwork" class="text-white text-opacity-80 text-sm">ERC-20</p>
+            </div>
+            <div id="cryptoIcon" class="text-5xl text-white text-opacity-90">₮</div>
+          </div>
+          <!-- QR -->
+          <div class="bg-white rounded-xl p-4 mb-4 flex justify-center">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="QR Code" class="w-48 h-48" />
+          </div>
+          <!-- Address -->
+          <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4">
+            <label class="block text-white text-xs font-semibold mb-2 uppercase tracking-wide">Wallet Address</label>
+            <div class="flex items-center gap-2">
+              <div id="walletAddress" class="flex-1 bg-black bg-opacity-30 rounded-lg px-3 py-2 text-white text-sm font-mono break-all"></div>
+              <button id="copyBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 whitespace-nowrap no-tap-highlight">
+                <span class="select-none">📋</span>
+                <span id="copyLabel" class="text-xs">Copy</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-gray-100 rounded-xl p-4 mb-4">
+          <h4 class="text-gray-900 font-semibold mb-2 flex items-center gap-2"><span>ℹ️</span> Payment Instructions</h4>
+          <ul class="text-blue-700 text-sm space-y-1">
+            <li>• Scan the QR code with your wallet app</li>
+            <li>• Or copy the wallet address manually</li>
+            <li>• Send the exact amount to complete payment</li>
+            <li>• Click "Confirm Payment" to verify transaction</li>
+          </ul>
+        </div>
+
+        <!-- Action Button -->
+        <button id="confirmBtn" class="w-full pp-gold font-bold py-4 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg border border-black border-opacity-10 no-tap-highlight">Confirm Payment</button>
+
+        <!-- Security Badge -->
+        <div class="mt-4 flex items-center justify-center gap-2 text-gray-500 text-xs">
+          <span>🔒</span>
+          <span>Secured by blockchain technology</span>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-4 text-gray-500 text-sm">Powered by Web3 Technology</div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4 z-50 hidden">
+    <div class="bg-gradient-to-br from-white to-slate-50 rounded-3xl p-8 max-w-md w-full border border-black border-opacity-10 shadow-2xl">
+      <!-- Checking -->
+      <div id="state-checking" class="">
+        <div class="text-center">
+          <div class="mb-6">
+            <div class="w-20 h-20 mx-auto border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Verifying Payment</h3>
+          <p class="text-gray-600 mb-4">Checking <span id="checkingCrypto">USDT</span> blockchain for transaction...</p>
+          <div class="bg-gray-100 rounded-xl p-4">
+            <p class="text-sm text-gray-300">Scanning recent transactions</p>
+            <p class="text-xs text-gray-400 mt-2">Expected: <span id="expectedLabel">100</span> <span id="expectedSymbol">USDT</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div id="state-success" class="hidden">
+        <div class="text-center">
+          <div class="mb-6">
+            <div class="w-20 h-20 mx-auto bg-green-500 rounded-full flex items-center justify-center">
+              <span class="text-5xl">✓</span>
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h3>
+          <p class="text-gray-600 mb-4">Your transaction has been confirmed</p>
+          <div class="bg-green-500 bg-opacity-10 rounded-xl p-4 mb-4 border border-green-500 border-opacity-30">
+            <p class="text-sm text-green-400 font-semibold mb-1">Amount Received</p>
+            <p class="text-xl text-gray-900 font-bold"><span id="amountReceived">0</span> <span id="amountSymbol">USDT</span></p>
+          </div>
+          <div class="bg-white bg-opacity-5 rounded-xl p-4 mb-6">
+            <p class="text-sm text-gray-600 font-semibold mb-1">Transaction Hash</p>
+            <p id="txHash" class="text-xs text-blue-700 font-mono break-all"></p>
+          </div>
+          <button id="doneBtn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all duration-300 no-tap-highlight">Done</button>
+        </div>
+      </div>
+
+      <!-- Failed -->
+      <div id="state-failed" class="hidden">
+        <div class="text-center">
+          <div class="mb-6">
+            <div class="w-20 h-20 mx-auto bg-red-500 rounded-full flex items-center justify-center">
+              <span class="text-5xl">✕</span>
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Payment Not Found</h3>
+          <p class="text-gray-600 mb-4">No recent transaction detected</p>
+          <div class="bg-red-500 bg-opacity-10 rounded-xl p-4 mb-6 border border-red-500 border-opacity-30">
+            <p class="text-sm text-red-400 mb-2">Please ensure:</p>
+            <ul class="text-xs text-gray-300 text-left space-y-1">
+              <li>• Payment was sent to the correct address</li>
+              <li>• Amount matches or exceeds the expected amount</li>
+              <li>• Transaction was sent within last 10 minutes</li>
+              <li>• Network confirmation is complete</li>
+            </ul>
+          </div>
+          <button id="tryAgainBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition-all duration-300 no-tap-highlight">Try Again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---- Data ----
+    const cryptoData = {
+      USDT: {
+        name: 'Tether USD',
+        address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+        color: 'from-green-400 to-emerald-600',
+        icon: '₮',
+        network: 'ERC-20',
+        apiType: 'etherscan',
+        contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7'
+      },
+      BTC: {
+        name: 'Bitcoin',
+        address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+        color: 'from-orange-400 to-yellow-600',
+        icon: '₿',
+        network: 'Bitcoin Network',
+        apiType: 'blockchain'
+      },
+      ETH: {
+        name: 'Ethereum',
+        address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+        color: 'from-blue-400 to-purple-600',
+        icon: 'Ξ',
+        network: 'Ethereum Mainnet',
+        apiType: 'etherscan'
+      },
+      TRON: {
+        name: 'Tron',
+        address: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf',
+        color: 'from-red-400 to-pink-600',
+        icon: 'Ⓣ',
+        network: 'Tron Network',
+        apiType: 'tronscan'
+      }
+    };
+
+    // ---- State ----
+    let selectedCrypto = 'USDT';
+    let paymentStatus = 'pending'; // 'pending' | 'checking' | 'success' | 'failed'
+    let transactionHash = '';
+    let paymentAmount = '';
+    const expectedAmountInput = document.getElementById('expectedAmount');
+
+    // Defaults
+    expectedAmountInput.value = '100';
+
+    // ---- Elements ----
+    const cryptoButtons = document.getElementById('cryptoButtons');
+    const infoCard = document.getElementById('infoCard');
+    const cryptoName = document.getElementById('cryptoName');
+    const cryptoNetwork = document.getElementById('cryptoNetwork');
+    const cryptoIcon = document.getElementById('cryptoIcon');
+    const walletAddress = document.getElementById('walletAddress');
+    const copyBtn = document.getElementById('copyBtn');
+    const copyLabel = document.getElementById('copyLabel');
+    const confirmBtn = document.getElementById('confirmBtn');
+
+    // Modal elements
+    const modal = document.getElementById('modal');
+    const stateChecking = document.getElementById('state-checking');
+    const stateSuccess = document.getElementById('state-success');
+    const stateFailed = document.getElementById('state-failed');
+    const checkingCrypto = document.getElementById('checkingCrypto');
+    const expectedLabel = document.getElementById('expectedLabel');
+    const expectedSymbol = document.getElementById('expectedSymbol');
+    const amountReceived = document.getElementById('amountReceived');
+    const amountSymbol = document.getElementById('amountSymbol');
+    const txHashEl = document.getElementById('txHash');
+    const doneBtn = document.getElementById('doneBtn');
+    const tryAgainBtn = document.getElementById('tryAgainBtn');
+
+    // ---- Helpers ----
+    function setClass(el, classes) {
+      el.className = classes;
+    }
+
+    function setHidden(el, hidden) {
+      el.classList.toggle('hidden', hidden);
+    }
+
+    function updateInfoCard() {
+      const c = cryptoData[selectedCrypto];
+      setClass(infoCard, `rounded-2xl p-6 mb-6 shadow-xl pp-blue-grad`);
+      cryptoName.textContent = c.name;
+      cryptoNetwork.textContent = c.network;
+      cryptoIcon.textContent = c.icon;
+      walletAddress.textContent = c.address;
+    }
+
+    function renderCryptoButtons() {
+      cryptoButtons.innerHTML = '';
+      Object.keys(cryptoData).forEach((key) => {
+        const c = cryptoData[key];
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `p-4 rounded-xl transition-all duration-300 transform hover:scale-105 ${
+          selectedCrypto === key ? `pp-blue-grad shadow-lg` : 'bg-blue-50 hover:bg-blue-100'
+        }`;
+        btn.innerHTML = `<div class=\"text-2xl mb-1 ${selectedCrypto === key ? 'text-white' : 'text-blue-700'}\">${c.icon}</div>
+                         <div class="text-xs font-bold ${selectedCrypto === key ? 'text-white' : 'text-blue-700'}">${key}</div>`;
+        btn.addEventListener('click', () => {
+          selectedCrypto = key;
+          renderCryptoButtons();
+          updateInfoCard();
+        });
+        cryptoButtons.appendChild(btn);
+      });
+    }
+
+    function showModal() {
+      modal.classList.remove('hidden');
+      setHidden(stateChecking, false);
+      setHidden(stateSuccess, true);
+      setHidden(stateFailed, true);
+      checkingCrypto.textContent = selectedCrypto;
+      expectedLabel.textContent = expectedAmountInput.value || '0';
+      expectedSymbol.textContent = selectedCrypto;
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      paymentStatus = 'pending';
+      transactionHash = '';
+      paymentAmount = '';
+    }
+
+    // ---- API Checks ----
+    async function checkEthereumPayment(address) {
+      try {
+        const apiKey = 'YourEtherscanAPIKey'; // TODO: replace
+        const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10&sort=desc&apikey=${apiKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.status === '1' && data.result.length > 0) {
+          const latestTx = data.result[0];
+          const txValue = parseFloat(latestTx.value) / 1e18; // Wei -> ETH
+          const txTime = parseInt(latestTx.timeStamp) * 1000;
+          const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
+          if (txTime > tenMinutesAgo && txValue >= parseFloat(expectedAmountInput.value || '0')) {
+            return { success: true, hash: latestTx.hash, amount: txValue };
+          }
+        }
+        return { success: false };
+      } catch (e) {
+        console.error('ETH check error', e);
+        return { success: false };
+      }
+    }
+
+    async function checkUSDTPayment(address, contractAddress) {
+      try {
+        const apiKey = 'YourEtherscanAPIKey'; // TODO: replace
+        const url = `https://api.etherscan.io/api?module=account&action=tokentx&contractaddress=${contractAddress}&address=${address}&page=1&offset=10&sort=desc&apikey=${apiKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.status === '1' && data.result.length > 0) {
+          const latestTx = data.result[0];
+          const txValue = parseFloat(latestTx.value) / 1e6; // USDT decimals
+          const txTime = parseInt(latestTx.timeStamp) * 1000;
+          const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
+          if (txTime > tenMinutesAgo && txValue >= parseFloat(expectedAmountInput.value || '0')) {
+            return { success: true, hash: latestTx.hash, amount: txValue };
+          }
+        }
+        return { success: false };
+      } catch (e) {
+        console.error('USDT check error', e);
+        return { success: false };
+      }
+    }
+
+    async function checkBitcoinPayment(address) {
+      try {
+        const url = `https://blockchain.info/rawaddr/${address}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.txs && data.txs.length > 0) {
+          const latestTx = data.txs[0];
+          const txValue = latestTx.out.reduce((sum, o) => (o.addr === address ? sum + o.value : sum), 0) / 1e8; // sat -> BTC
+          const txTime = latestTx.time * 1000;
+          const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
+          if (txTime > tenMinutesAgo && txValue >= parseFloat(expectedAmountInput.value || '0')) {
+            return { success: true, hash: latestTx.hash, amount: txValue };
+          }
+        }
+        return { success: false };
+      } catch (e) {
+        console.error('BTC check error', e);
+        return { success: false };
+      }
+    }
+
+    async function checkTronPayment(address) {
+      try {
+        const url = `https://api.trongrid.io/v1/accounts/${address}/transactions?limit=10`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.data && data.data.length > 0) {
+          const latestTx = data.data[0];
+          const txValue = latestTx.raw_data.contract[0].parameter.value.amount / 1e6; // sun -> TRX
+          const txTime = latestTx.block_timestamp;
+          const tenMinutesAgo = Date.now() - (10 * 60 * 1000);
+          if (txTime > tenMinutesAgo && txValue >= parseFloat(expectedAmountInput.value || '0')) {
+            return { success: true, hash: latestTx.txID, amount: txValue };
+          }
+        }
+        return { success: false };
+      } catch (e) {
+        console.error('TRON check error', e);
+        return { success: false };
+      }
+    }
+
+    async function handleConfirmPayment() {
+      paymentStatus = 'checking';
+      showModal();
+      const c = cryptoData[selectedCrypto];
+      let result = { success: false };
+      try {
+        if (selectedCrypto === 'USDT') result = await checkUSDTPayment(c.address, c.contractAddress);
+        else if (selectedCrypto === 'BTC') result = await checkBitcoinPayment(c.address);
+        else if (selectedCrypto === 'ETH') result = await checkEthereumPayment(c.address);
+        else if (selectedCrypto === 'TRON') result = await checkTronPayment(c.address);
+      } catch (e) {
+        console.error('Verification error', e);
+      }
+
+      if (result.success) {
+        transactionHash = result.hash;
+        paymentAmount = Number(result.amount).toFixed(6);
+        paymentStatus = 'success';
+        // Render success
+        setHidden(stateChecking, true);
+        setHidden(stateFailed, true);
+        setHidden(stateSuccess, false);
+        amountReceived.textContent = paymentAmount;
+        amountSymbol.textContent = selectedCrypto;
+        txHashEl.textContent = `${transactionHash.substring(0, 20)}...${transactionHash.substring(transactionHash.length - 10)}`;
+      } else {
+        paymentStatus = 'failed';
+        // Render failed
+        setHidden(stateChecking, true);
+        setHidden(stateSuccess, true);
+        setHidden(stateFailed, false);
+      }
+    }
+
+    // ---- Event bindings ----
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(walletAddress.textContent.trim());
+        copyLabel.textContent = 'Copied';
+        setTimeout(() => (copyLabel.textContent = 'Copy'), 2000);
+      } catch (e) {
+        console.warn('Clipboard failed:', e);
+        copyLabel.textContent = 'Copy failed';
+        setTimeout(() => (copyLabel.textContent = 'Copy'), 2000);
+      }
+    });
+
+    confirmBtn.addEventListener('click', handleConfirmPayment);
+    document.getElementById('doneBtn').addEventListener('click', closeModal);
+    document.getElementById('tryAgainBtn').addEventListener('click', closeModal);
+
+    // Initialize
+    renderCryptoButtons();
+    updateInfoCard();
+
+    // Close modal on ESC
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+    // Close modal on backdrop click
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  </script>
+</body>
+</html>
