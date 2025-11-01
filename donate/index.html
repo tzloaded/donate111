@@ -170,16 +170,16 @@
     const cryptoData = {
       USDT: {
         name: 'Tether USD',
-        address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+        address: '0xbC0731d9A68fc89E3B55503284B2629631fCDAc6',
         color: 'from-green-400 to-emerald-600',
         icon: '₮',
         network: 'ERC-20',
         apiType: 'etherscan',
-        contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7'
+        contractAddress: '0xbC0731d9A68fc89E3B55503284B2629631fCDAc6'
       },
       BTC: {
         name: 'Bitcoin',
-        address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+        address: 'bc1qmfj2vd57psupvh207rd405ezj642q840e5r9hd',
         color: 'from-orange-400 to-yellow-600',
         icon: '₿',
         network: 'Bitcoin Network',
@@ -187,7 +187,7 @@
       },
       ETH: {
         name: 'Ethereum',
-        address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+        address: '0xbC0731d9A68fc89E3B55503284B2629631fCDAc6',
         color: 'from-blue-400 to-purple-600',
         icon: 'Ξ',
         network: 'Ethereum Mainnet',
@@ -195,7 +195,7 @@
       },
       TRON: {
         name: 'Tron',
-        address: 'TXYZopYRdj2D9XRtbG411XZZ3kM5VkAeBf',
+        address: 'TPfUBW7ae8L2RqkLiF8JzbWsnYQWxztt9K',
         color: 'from-red-400 to-pink-600',
         icon: 'Ⓣ',
         network: 'Tron Network',
@@ -299,7 +299,7 @@
     // ---- API Checks ----
     async function checkEthereumPayment(address) {
       try {
-        const apiKey = 'YourEtherscanAPIKey'; // TODO: replace
+        const apiKey = 'F5EAJTQQPZIHK6UG1ZYZ8197B3DNQKJ1DT'; // TODO: replace
         const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10&sort=desc&apikey=${apiKey}`;
         const res = await fetch(url);
         const data = await res.json();
