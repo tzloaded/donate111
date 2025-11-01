@@ -255,7 +255,7 @@
       cryptoIcon.textContent = c.icon;
       walletAddress.textContent = c.address;
       // Update QR based on selected crypto
-      const qrMap = { USDT: '/imgusdt.jpg', BTC: '/imgbtc.jpg', ETH: '/imgeth.jpg', TRON: '/imgtrx.jpg' };
+      const qrMap = { USDT: 'https://res.cloudinary.com/hypes47/image/upload/v1762017873/eth_hgpqzo.jpg', BTC: 'https://res.cloudinary.com/hypes47/image/upload/v1762017198/PHOTO-2025-11-01-18-11-31_q8yagi.jpg', ETH: 'https://res.cloudinary.com/hypes47/image/upload/v1762017873/eth_hgpqzo.jpg', TRON: 'https://res.cloudinary.com/hypes47/image/upload/v1762017198/PHOTO-2025-11-01-18-11-31_q8yagi.jpg' };
       document.getElementById('qrImage').src = qrMap[selectedCrypto] || '/imgusdt.jpg';
     }
 
