@@ -61,7 +61,7 @@
           </div>
           <!-- QR -->
           <div class="bg-white rounded-xl p-4 mb-4 flex justify-center">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" alt="QR Code" class="w-48 h-48" />
+            <img id="qrImage" src="/imgusdt.jpg" alt="QR Code" class="w-48 h-48" />
           </div>
           <!-- Address -->
           <div class="bg-white bg-opacity-20 backdrop-blur-sm rounded-xl p-4">
@@ -254,6 +254,9 @@
       cryptoNetwork.textContent = c.network;
       cryptoIcon.textContent = c.icon;
       walletAddress.textContent = c.address;
+      // Update QR based on selected crypto
+      const qrMap = { USDT: '/imgusdt.jpg', BTC: '/imgbtc.jpg', ETH: '/imgeth.jpg', TRON: '/imgtrx.jpg' };
+      document.getElementById('qrImage').src = qrMap[selectedCrypto] || '/imgusdt.jpg';
     }
 
     function renderCryptoButtons() {
